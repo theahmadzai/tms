@@ -79,7 +79,6 @@ public class FaresPanel extends JPanel {
 			.withVehicleType(2)
 			.build()
 		);
-		System.out.println(Query.all().delete(Fare.class));
 
 		// Events
 		fareAddButton.addActionListener(new ActionListener() {

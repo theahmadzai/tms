@@ -12,7 +12,6 @@ import immortal.annotations.Column;
 import immortal.annotations.Table;
 import immortal.constants.Type;
 
-
 public class Query {
 	private static Connection connection;
 
@@ -39,20 +38,6 @@ public class Query {
 			this.value = value;
 		}
 
-        private void prepareStatement(StringBuffer sqlQuery) throws SQLException {
-            preparedStatement = connection.prepareStatement(sqlQuery.toString());
-
-            if(!all) {
-                if(value instanceof Number) {
-                    preparedStatement.setInt(1, (int) value);
-                } else if(value instanceof String) {
-                    preparedStatement.setString(1, (String) value);
-                } else {
-                    preparedStatement.setString(1, value.toString());
-                }
-            }
-        }
-
 		public Object select(Class<?> cls) {
 			Table table = cls.getAnnotation(Table.class);
 
@@ -61,8 +46,15 @@ public class Query {
 			if(!all) sqlQuery.append(" WHERE " + key + " = ?");
 
 			try {
-                prepareStatement(sqlQuery);
+			    preparedStatement = connection.prepareStatement(sqlQuery.toString());
+
+			    if(!all) preparedStatement.setObject(1, value);
+
                 ResultSet rs = preparedStatement.executeQuery();
+
+
+                Object obj = cls.getDeclaredConstructor().newInstance();
+
                 preparedStatement.close();
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -82,7 +74,8 @@ public class Query {
 			if(!all) sqlQuery.append(" WHERE " + key + " = ?");
 
 			try {
-                prepareStatement(sqlQuery);
+                preparedStatement = connection.prepareStatement(sqlQuery.toString());
+                if(!all) preparedStatement.setObject(1, value);
                 int rowsEffected = preparedStatement.executeUpdate();
                 preparedStatement.close();
                 return rowsEffected;
