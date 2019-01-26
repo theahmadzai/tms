@@ -1,5 +1,7 @@
 package immortal;
 
+import java.util.List;
+
 import immortal.database.Database;
 import immortal.models.Fare;
 
@@ -13,12 +15,16 @@ public class ServerDriver {
 
 //	    Database.Query(Fare.class).where("id","=",3).select();
 //	    Database.Query(Fare.class).all().select();
-//	    Database.Query(Fare.class).where("id","=", 5).update(new Fare());
+//	    System.out.println(Database.Query(Fare.class).where("id","=", 2).update(new Fare.Builder().withAmount(115).withVehicleType(33).build()));
 //	    Database.Query(Fare.class).insert(new Fare());
-	    System.out.println(Database.Query(Fare.class).where("id","=",2).delete());
+//	    System.out.println(Database.Query(Plaza.class).delete());
 //	    Database.Query(Fare.class);
-//	    Database.Query(Fare.class).insert(new Fare.Builder().withAmount(15).withVehicleType(33));
-//	    Database.Query(Fare.class).where("id", "=", 2).select();
+//	    System.out.println(Database.Query(Fare.class).insert(new Fare.Builder().withAmount(15).withVehicleType(33).build()));
+	    List<Fare> fares = Database.Query(Fare.class).where("amount", "=", "15").limit(21).select();
+
+	    fares.forEach((Fare f) -> {
+	        System.out.println(f.getAmount() + " - " + f.getVehicleType());
+	    });
 
 	}
 

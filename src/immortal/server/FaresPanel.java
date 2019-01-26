@@ -16,7 +16,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import immortal.constants.Gender;
-import immortal.database.Query;
+import immortal.database.QueryD;
 import immortal.models.Fare;
 import immortal.models.Person;
 import immortal.models.Plaza;
@@ -74,7 +74,7 @@ public class FaresPanel extends JPanel {
 		faresTable.setModel(dtm);
 
 //		Query.where("id",3).all().select(Fare.class);
-		Query.insert( new Fare.Builder()
+		QueryD.insert( new Fare.Builder()
 			.withAmount(1)
 			.withVehicleType(2)
 			.build()
@@ -89,18 +89,18 @@ public class FaresPanel extends JPanel {
 					return;
 				}
 
-				Query.insert( new Fare.Builder()
+				QueryD.insert( new Fare.Builder()
 					.withAmount(Integer.parseInt(amountField.getText()))
 					.withVehicleType(Integer.parseInt(vehicleField.getText()))
 					.build()
 				);
 
-				Query.insert( new Plaza.Builder()
+				QueryD.insert( new Plaza.Builder()
 					.withPassword("hello")
 					.build()
 				);
 
-				Query.insert( new Person.Builder()
+				QueryD.insert( new Person.Builder()
 					.withCnic("1221 123")
 					.withName("Javed")
 					.withAge(15)
@@ -108,14 +108,14 @@ public class FaresPanel extends JPanel {
 					.build()
 				);
 
-				Query.insert( new Vehicle.Builder()
+				QueryD.insert( new Vehicle.Builder()
 					.withNumberPlate("234")
 					.withModel("151")
 					.withFareId(2)
 					.build()
 				);
 
-				Query.insert( new Trip.Builder()
+				QueryD.insert( new Trip.Builder()
 					.withPlazaId(1)
 					.withPersonId(2)
 					.withVehicleId(2)

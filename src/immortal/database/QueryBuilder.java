@@ -1,21 +1,23 @@
 package immortal.database;
 
 import java.lang.reflect.Field;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import immortal.annotations.Column;
 import immortal.annotations.Table;
-import immortal.database.components.BracketDecorator;
 import immortal.database.components.Columns;
+import immortal.database.components.Limit;
 import immortal.database.components.Set;
 import immortal.database.components.Values;
-import immortal.database.components.ValuesDecorator;
 import immortal.database.components.Where;
-import immortal.database.components.WhereDecorator;
+import immortal.database.components.decorators.BracketDecorator;
+import immortal.database.components.decorators.LimitDecorator;
+import immortal.database.components.decorators.SetDecorator;
+import immortal.database.components.decorators.ValuesDecorator;
+import immortal.database.components.decorators.WhereDecorator;
 
 public class QueryBuilder implements QueryBuilderInterface {
     private Class<?> c;
@@ -24,8 +26,10 @@ public class QueryBuilder implements QueryBuilderInterface {
     private Map<String, String> columnValue = new HashMap<>();//TODO REMOVE THIS AND USE ITERABLE INTERFACE ON SET
     private Set set; // STORE COLUMN VALUE HERE AND PROVIDE ADD REMOVE METHOD
     private Where where;
+    private Limit limit;
     private Columns columns;
     private Values values;
+    private Query query;
 
     public QueryBuilder(Class<?> c) {
         this.c = c;
@@ -45,70 +49,69 @@ public class QueryBuilder implements QueryBuilderInterface {
         values = new Values(columnValue.values());
     }
 
-    private ResultSet execute(String sqlQuery) {
-        ResultSet result = null;
-        try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement(sqlQuery);
-            System.out.println(preparedStatement.isClosed());
-            result = preparedStatement.executeQuery();
-            result.next();
-            System.out.println(result.getObject("amount"));
-//            preparedStatement.close();
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        }
-        return result;
-    }
-
     @Override
     public int insert(final Object o) {
-        StringBuffer sqlQuery = new StringBuffer("INSERT INTO " + table + columns);
-        return 0;
+        try {
+            query = new Query("INSERT INTO " + table + " " +
+                new BracketDecorator(columns) +
+                new ValuesDecorator(values)
+            )
+            .setParameters(o, fields)
+            .executeUpdate();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return query.getRowsEffected();
     }
 
     @Override
     public int update(final Object o) {
-        // TODO Auto-generated method stub
-        return 0;
+        try {
+            query = new Query("UPDATE " + table +
+                new SetDecorator(set) +
+                new WhereDecorator(where)
+            )
+            .setParameters(o, fields)
+            .executeUpdate();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return query.getRowsEffected();
     }
 
     @Override
     public int delete() {
-        System.out.println("DELETE FROM " + table +
+        try {
+            query = new Query("DELETE FROM " + table +
                 new WhereDecorator(where)
-        );
-        System.out.println("INSERT INTO " + table +
-                new BracketDecorator(columns) +
-                new ValuesDecorator(values)
-        );
-        System.out.println("UPDATE " + table +
+            )
+            .executeUpdate();
 
-                new WhereDecorator(where)
-        );
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
 
-        System.out.println("INSERT INTO " + table +
-                new BracketDecorator(columns) +
-                new ValuesDecorator(values) +
-                new WhereDecorator(where)
-        );
-
-//        return (int) execute("DELETE FROM " + table + where);
-        return 3;
+        return query.getRowsEffected();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> T select() {
-        String sqlQuery = "SELECT * FROM " + table;
-        System.out.println(sqlQuery);
-        T a = (T) execute(sqlQuery);
+    public <T> List<T> select() {
         try {
-            System.out.println(((ResultSet) a).getString("amount"));
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            query = new Query("SELECT * FROM " + table +
+                new WhereDecorator(where) +
+                new LimitDecorator(limit)
+            )
+            .executeQuery(c, fields);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        return a;
+
+        return (List<T>) query.getResults();
     }
 
     @Override
@@ -118,20 +121,8 @@ public class QueryBuilder implements QueryBuilderInterface {
     }
 
     @Override
-    public QueryBuilder all() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public QueryBuilder first() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public QueryBuilder last() {
-        // TODO Auto-generated method stub
-        return null;
+    public QueryBuilder limit(int length) {
+        limit = new Limit(length);
+        return this;
     }
 }
