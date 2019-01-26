@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-@SuppressWarnings("WeakerAccess")
 public class Database {
 	private static Database instance = null;
 	private Connection connection;
@@ -28,5 +27,9 @@ public class Database {
 		}
 
 		return instance;
+	}
+
+	public static QueryBuilder Query(Class<?> c) {
+	    return new QueryBuilder(c);
 	}
 }
