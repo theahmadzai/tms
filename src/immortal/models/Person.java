@@ -7,16 +7,18 @@ import immortal.constants.Gender;
 @Table("person")
 public class Person {
 	@Column("cnic")
-	private final String cnic;
+	private String cnic;
 
 	@Column("name")
-	private final String name;
+	private String name;
 
 	@Column("age")
-	private final int age;
+	private int age;
 
 	@Column("gender")
-	private final Gender gender;
+	private Gender gender;
+
+	public Person() { }
 
 	private Person(Builder builder) {
 		if(builder.cnic == null) {

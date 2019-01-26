@@ -8,7 +8,9 @@ import immortal.annotations.Table;
 @Table("plaza")
 public class Plaza {
 	@Column("password")
-	private final String password;
+	private String password;
+
+	public Plaza() { }
 
 	private Plaza(Builder builder) {
 		this.password = Objects.requireNonNull(builder.password);

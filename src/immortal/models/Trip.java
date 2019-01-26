@@ -6,16 +6,18 @@ import immortal.annotations.Table;
 @Table("trip")
 public class Trip {
 	@Column("plaza_id")
-	private final int plazaId;
+	private int plazaId;
 
 	@Column("person_id")
-	private final int personId;
+	private int personId;
 
 	@Column("vehicle_id")
-	private final int vehicleId;
+	private int vehicleId;
 
 	@Column("date")
-	private final String date;
+	private String date;
+
+	public Trip() { }
 
 	private Trip(Builder builder) {
 		if(builder.date == null) {

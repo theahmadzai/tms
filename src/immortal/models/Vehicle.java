@@ -6,13 +6,15 @@ import immortal.annotations.Table;
 @Table("vehicle")
 public class Vehicle {
 	@Column("number_plate")
-	private final String numberPlate;
+	private String numberPlate;
 
 	@Column("model")
-	private final String model;
+	private String model;
 
 	@Column("fare_id")
-	private final int fareId;
+	private int fareId;
+
+	public Vehicle() { }
 
 	private Vehicle(Builder builder) {
 		if(builder.numberPlate == null) {

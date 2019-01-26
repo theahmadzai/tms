@@ -6,10 +6,12 @@ import immortal.annotations.Table;
 @Table("fare")
 public class Fare {
 	@Column("amount")
-	private final int amount;
+	private int amount;
 
 	@Column("vehicle_type")
-	private final int vehicleType;
+	private int vehicleType;
+
+	public Fare() { }
 
 	private Fare(Builder builder) {
 		this.amount = builder.amount;
