@@ -1,4 +1,6 @@
-package immortal.database.components;
+package immortal.database.components.decorators;
+
+import immortal.database.components.SqlInterface;
 
 public final class BracketDecorator extends SqlDecorator {
     public BracketDecorator(SqlInterface clause) {

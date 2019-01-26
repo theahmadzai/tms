@@ -1,4 +1,6 @@
-package immortal.database.components;
+package immortal.database.components.decorators;
+
+import immortal.database.components.SqlInterface;
 
 public abstract class SqlDecorator {
     protected SqlInterface clause;

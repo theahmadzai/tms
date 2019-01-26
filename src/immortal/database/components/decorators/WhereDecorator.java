@@ -1,4 +1,6 @@
-package immortal.database.components;
+package immortal.database.components.decorators;
+
+import immortal.database.components.Where;
 
 final public class WhereDecorator extends SqlDecorator {
     public WhereDecorator(Where where) {
@@ -7,6 +9,7 @@ final public class WhereDecorator extends SqlDecorator {
 
     @Override
     public String toString() {
+        if(clause == null) return new String();
         return "\nWHERE " + clause;
     }
 }
