@@ -4,7 +4,7 @@ import immortal.annotations.Column;
 import immortal.annotations.Table;
 
 @Table("trip")
-public class Trip {
+public class Trip extends Model {
 	@Column("plaza_id")
 	private int plazaId;
 

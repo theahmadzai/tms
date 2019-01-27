@@ -1,12 +1,12 @@
 package immortal.models;
 
-import java.util.Objects;
-
 import immortal.annotations.Column;
 import immortal.annotations.Table;
 
+import java.util.Objects;
+
 @Table("plaza")
-public class Plaza {
+public class Plaza extends Model {
 	@Column("password")
 	private String password;
 

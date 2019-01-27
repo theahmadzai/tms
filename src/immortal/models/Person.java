@@ -5,7 +5,7 @@ import immortal.annotations.Table;
 import immortal.constants.Gender;
 
 @Table("person")
-public class Person {
+public class Person extends Model {
 	@Column("cnic")
 	private String cnic;
 

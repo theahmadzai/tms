@@ -4,7 +4,7 @@ import immortal.annotations.Column;
 import immortal.annotations.Table;
 
 @Table("vehicle")
-public class Vehicle {
+public class Vehicle extends Model {
 	@Column("number_plate")
 	private String numberPlate;
 
