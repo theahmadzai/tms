@@ -1,23 +1,14 @@
 package immortal.database;
 
+import immortal.annotations.Column;
+import immortal.annotations.Table;
+import immortal.database.components.*;
+import immortal.database.components.decorators.*;
+
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import immortal.annotations.Column;
-import immortal.annotations.Table;
-import immortal.database.components.Columns;
-import immortal.database.components.Limit;
-import immortal.database.components.Set;
-import immortal.database.components.Values;
-import immortal.database.components.Where;
-import immortal.database.components.decorators.BracketDecorator;
-import immortal.database.components.decorators.LimitDecorator;
-import immortal.database.components.decorators.SetDecorator;
-import immortal.database.components.decorators.ValuesDecorator;
-import immortal.database.components.decorators.WhereDecorator;
 
 /**
  * @author theahmadzai
@@ -27,34 +18,32 @@ import immortal.database.components.decorators.WhereDecorator;
  * DELETE FROM {TABLE} :{WHERE}
  * SELECT *{COLUMNS} FROM {TABLE} :{WHERE} :{LIMIT} :{GROUP} :{ORDER}
  */
+//TODO REMOVE THIS AND USE ITERABLE INTERFACE ON SET
+// STORE COLUMN VALUE HERE AND PROVIDE ADD REMOVE METHOD
 public class QueryBuilder implements QueryBuilderInterface {
     private Class<?> c;
+    private Query query;
     private String table;
     private Map<String, Field> fields = new HashMap<>();
-    private Map<String, String> columnValue = new HashMap<>();//TODO REMOVE THIS AND USE ITERABLE INTERFACE ON SET
-    private Set set; // STORE COLUMN VALUE HERE AND PROVIDE ADD REMOVE METHOD
+    private Map<String, String> columnValue = new HashMap<>();
+    private Columns columns = new Columns(columnValue.keySet());
+    private Values values = new Values(columnValue.values());
+    private Set set = new Set(columnValue);
     private Where where;
     private Limit limit;
-    private Columns columns;
-    private Values values;
-    private Query query;
 
     public QueryBuilder(Class<?> c) {
         this.c = c;
         table = c.getAnnotation(Table.class).value();
         Field[] fields = c.getDeclaredFields();
 
-
         for(Field field : fields) {
+            if(!field.isAnnotationPresent(Column.class)) continue;
             field.setAccessible(true);
             Column column = field.getAnnotation(Column.class);
             this.fields.put(column.value(), field);
             columnValue.put(column.value(), "?");
         }
-
-        set = new Set(columnValue);
-        columns = new Columns(columnValue.keySet());
-        values = new Values(columnValue.values());
     }
 
     @Override
@@ -71,7 +60,7 @@ public class QueryBuilder implements QueryBuilderInterface {
             ex.printStackTrace();
         }
 
-        return query.getRowsEffected();
+        return query.getGeneratedKey();
     }
 
     @Override
@@ -99,7 +88,7 @@ public class QueryBuilder implements QueryBuilderInterface {
             )
             .executeUpdate();
 
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
