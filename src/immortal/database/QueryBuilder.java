@@ -19,6 +19,14 @@ import immortal.database.components.decorators.SetDecorator;
 import immortal.database.components.decorators.ValuesDecorator;
 import immortal.database.components.decorators.WhereDecorator;
 
+/**
+ * @author theahmadzai
+ * @description SQL Queries Pattern
+ * INSERT INTO {TABLE} {COLUMNS} {VALUES}
+ * UPDATE {TABLE} {SET} :{WHERE}
+ * DELETE FROM {TABLE} :{WHERE}
+ * SELECT *{COLUMNS} FROM {TABLE} :{WHERE} :{LIMIT} :{GROUP} :{ORDER}
+ */
 public class QueryBuilder implements QueryBuilderInterface {
     private Class<?> c;
     private String table;
@@ -115,8 +123,8 @@ public class QueryBuilder implements QueryBuilderInterface {
     }
 
     @Override
-    public QueryBuilder where(String key, String operator, Object value) {
-        where = new Where(key, operator, value);
+    public QueryBuilder where(String key, Object operator, Object ...values) {
+        where = new Where(key, operator, values);
         return this;
     }
 

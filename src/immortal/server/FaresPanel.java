@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -15,13 +15,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import immortal.constants.Gender;
-import immortal.database.QueryD;
+import immortal.database.Database;
 import immortal.models.Fare;
-import immortal.models.Person;
-import immortal.models.Plaza;
-import immortal.models.Trip;
-import immortal.models.Vehicle;
 
 @SuppressWarnings("serial")
 public class FaresPanel extends JPanel {
@@ -73,60 +68,28 @@ public class FaresPanel extends JPanel {
 		});
 		faresTable.setModel(dtm);
 
-//		Query.where("id",3).all().select(Fare.class);
-		QueryD.insert( new Fare.Builder()
-			.withAmount(1)
-			.withVehicleType(2)
-			.build()
-		);
+		List<Fare> fares = Database.Query(Fare.class).select();
+
+		fares.forEach((Fare fare) -> {
+		    dtm.addRow(new Object[] {1, fare.getAmount(), fare.getVehicleType()});
+		});
 
 		// Events
-		fareAddButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(amountField.getText().length() < 1 || vehicleField.getText().length() < 1) {
-					JOptionPane.showMessageDialog(FaresPanel.this, "Invalid Entry!");
-					return;
-				}
-
-				QueryD.insert( new Fare.Builder()
-					.withAmount(Integer.parseInt(amountField.getText()))
-					.withVehicleType(Integer.parseInt(vehicleField.getText()))
-					.build()
-				);
-
-				QueryD.insert( new Plaza.Builder()
-					.withPassword("hello")
-					.build()
-				);
-
-				QueryD.insert( new Person.Builder()
-					.withCnic("1221 123")
-					.withName("Javed")
-					.withAge(15)
-					.withGender(Gender.MALE)
-					.build()
-				);
-
-				QueryD.insert( new Vehicle.Builder()
-					.withNumberPlate("234")
-					.withModel("151")
-					.withFareId(2)
-					.build()
-				);
-
-				QueryD.insert( new Trip.Builder()
-					.withPlazaId(1)
-					.withPersonId(2)
-					.withVehicleId(2)
-					.withDate("12-123-123")
-					.build()
-				);
-
-				dtm.addRow(new Object[]{1, amountField.getText(), vehicleField.getText()});
-				amountField.setText(null);
-				vehicleField.setText(null);
+		fareAddButton.addActionListener((ActionEvent e) -> {
+			if(amountField.getText().length() < 1 || vehicleField.getText().length() < 1) {
+				JOptionPane.showMessageDialog(FaresPanel.this, "Invalid Entry!");
+				return;
 			}
+
+			Database.Query(Fare.class).insert(new Fare.Builder()
+				.withAmount(Integer.parseInt(amountField.getText()))
+				.withVehicleType(Integer.parseInt(vehicleField.getText()))
+				.build()
+			);
+
+			dtm.addRow(new Object[]{1, amountField.getText(), vehicleField.getText()});
+			amountField.setText(null);
+			vehicleField.setText(null);
 		});
 	}
 }
