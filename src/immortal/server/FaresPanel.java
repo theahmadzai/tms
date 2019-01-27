@@ -1,22 +1,13 @@
 package immortal.server;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-
 import immortal.database.Database;
 import immortal.models.Fare;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class FaresPanel extends JPanel {
@@ -57,7 +48,7 @@ public class FaresPanel extends JPanel {
 
 		gc.fill = GridBagConstraints.BOTH;
 		gc.weighty = 10;
-		gc.gridwidth = 3;
+		gc.gridwidth = 2;
 		gc.gridx = 0;
 		gc.gridy = 3;
 		add(new JScrollPane(faresTable), gc);
@@ -70,24 +61,24 @@ public class FaresPanel extends JPanel {
 
 		List<Fare> fares = Database.Query(Fare.class).select();
 
-		fares.forEach((Fare fare) -> {
-		    dtm.addRow(new Object[] {1, fare.getAmount(), fare.getVehicleType()});
-		});
+        for (Fare fare : fares) {
+            dtm.addRow(new Object[]{fare.getId(), fare.getAmount(), fare.getVehicleType()});
+        }
 
-		// Events
+        // Events
 		fareAddButton.addActionListener((ActionEvent e) -> {
 			if(amountField.getText().length() < 1 || vehicleField.getText().length() < 1) {
 				JOptionPane.showMessageDialog(FaresPanel.this, "Invalid Entry!");
 				return;
 			}
 
-			Database.Query(Fare.class).insert(new Fare.Builder()
+			int key = Database.Query(Fare.class).insert(new Fare.Builder()
 				.withAmount(Integer.parseInt(amountField.getText()))
 				.withVehicleType(Integer.parseInt(vehicleField.getText()))
 				.build()
 			);
 
-			dtm.addRow(new Object[]{1, amountField.getText(), vehicleField.getText()});
+			dtm.addRow(new Object[]{key, amountField.getText(), vehicleField.getText()});
 			amountField.setText(null);
 			vehicleField.setText(null);
 		});
