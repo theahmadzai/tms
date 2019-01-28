@@ -1,5 +1,7 @@
 package immortal.database;
 
+import immortal.Exceptions.DatabaseException;
+import immortal.Exceptions.QueryException;
 import immortal.annotations.Column;
 import immortal.annotations.Table;
 import immortal.database.components.*;
@@ -12,7 +14,6 @@ import java.util.Map;
 
 /**
  * @author theahmadzai
- * @description SQL Queries Pattern
  * INSERT INTO {TABLE} {COLUMNS} {VALUES}
  * UPDATE {TABLE} {SET} :{WHERE}
  * DELETE FROM {TABLE} :{WHERE}
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 //TODO REMOVE THIS AND USE ITERABLE INTERFACE ON SET
 // STORE COLUMN VALUE HERE AND PROVIDE ADD REMOVE METHOD
-public class QueryBuilder implements QueryBuilderInterface {
+public class QueryBuilder {
     private Class<?> c;
     private Query query;
     private String table;
@@ -32,7 +33,7 @@ public class QueryBuilder implements QueryBuilderInterface {
     private Where where;
     private Limit limit;
 
-    public QueryBuilder(Class<?> c) {
+    QueryBuilder(Class<?> c) {
         this.c = c;
         table = c.getAnnotation(Table.class).value();
         Field[] fields = c.getDeclaredFields();
@@ -46,78 +47,52 @@ public class QueryBuilder implements QueryBuilderInterface {
         }
     }
 
-    @Override
-    public int insert(final Object o) {
-        try {
-            query = new Query("INSERT INTO " + table + " " +
-                new BracketDecorator(columns) +
-                new ValuesDecorator(values)
-            )
-            .setParameters(o, fields)
-            .executeUpdate();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public int insert(final Object o) throws DatabaseException, QueryException {
+        query = new Query("INSERT INTO " + table + " " +
+            new BracketDecorator(columns) +
+            new ValuesDecorator(values)
+        )
+        .setParameters(o, fields)
+        .executeUpdate();
 
         return query.getGeneratedKey();
     }
 
-    @Override
-    public int update(final Object o) {
-        try {
-            query = new Query("UPDATE " + table +
-                new SetDecorator(set) +
-                new WhereDecorator(where)
-            )
-            .setParameters(o, fields)
-            .executeUpdate();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public int update(final Object o) throws DatabaseException, QueryException {
+        query = new Query("UPDATE " + table +
+            new SetDecorator(set) +
+            new WhereDecorator(where)
+        )
+        .setParameters(o, fields)
+        .executeUpdate();
 
         return query.getRowsEffected();
     }
 
-    @Override
-    public int delete() {
-        try {
-            query = new Query("DELETE FROM " + table +
-                new WhereDecorator(where)
-            )
-            .executeUpdate();
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public int delete() throws DatabaseException, QueryException {
+        query = new Query("DELETE FROM " + table +
+            new WhereDecorator(where)
+        )
+        .executeUpdate();
 
         return query.getRowsEffected();
     }
 
-    @Override
-    public <T> List<T> select() {
-        try {
-            query = new Query("SELECT * FROM " + table +
-                new WhereDecorator(where) +
-                new LimitDecorator(limit)
-            )
-            .executeQuery(c, fields);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public <T> List<T> select() throws DatabaseException, QueryException {
+        query = new Query("SELECT * FROM " + table +
+            new WhereDecorator(where) +
+            new LimitDecorator(limit)
+        )
+        .executeQuery(c, fields);
 
         return (List<T>) query.getResults();
     }
 
-    @Override
     public QueryBuilder where(String key, Object operator, Object ...values) {
         where = new Where(key, operator, values);
         return this;
     }
 
-    @Override
     public QueryBuilder limit(int length) {
         limit = new Limit(length);
         return this;
