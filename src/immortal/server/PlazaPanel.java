@@ -2,58 +2,90 @@ package immortal.server;
 
 import immortal.database.Database;
 import immortal.models.Plaza;
+import immortal.util.InputOutput;
+import immortal.util.TableModel;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class PlazaPanel extends JPanel {
-    private final JTextField passwordField = new JTextField();
-    private final JButton plazaAddButton = new JButton("Add Plaza");
-    private final JTable plazaTable = new JTable();
-
+class PlazaPanel extends JPanel {
 	PlazaPanel() {
+        final JPasswordField passwordField = new JPasswordField();
+        final JTextField nameField = new JTextField();
+        final JButton plazaAddButton = new JButton("Add Plaza");
+        final JTable plazaTable = new JTable();
+
         setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
 
         gc.weightx = 0.5;
-        gc.weighty = 2;
+        gc.weighty = 0.5;
 
         gc.anchor = GridBagConstraints.LINE_END;
         gc.gridx = 0;
         gc.gridy = 0;
         add(new JLabel("Password: "), gc);
 
+        gc.gridy = 1;
+        add(new JLabel("Plaza Name:"), gc);
+
         gc.anchor = GridBagConstraints.LINE_START;
         gc.gridx = 1;
+        gc.gridy = 0;
         passwordField.setPreferredSize(new Dimension(150, 20));
         passwordField.setMinimumSize(new Dimension(150, 20));
         add(passwordField, gc);
+
+        gc.gridy = 1;
+        nameField.setPreferredSize(new Dimension(150, 20));
+        nameField.setMinimumSize(new Dimension(150, 20));
+        add(nameField, gc);
 
         gc.gridy = 2;
         add(plazaAddButton, gc);
 
         gc.fill = GridBagConstraints.BOTH;
-        gc.weighty = 8;
+        gc.weighty = 10;
         gc.gridwidth = 2;
         gc.gridx = 0;
         gc.gridy = 3;
         add(new JScrollPane(plazaTable), gc);
 
-        DefaultTableModel dtm = new DefaultTableModel(0,0);
-        dtm.setColumnIdentifiers(new String[] {
-            "#", "Password"
-        });
+        final TableModel tableModel = new TableModel(plazaTable).setColumns("#", "Password", "Name");
 
-        plazaTable.setModel(dtm);
+        try {
+            List<Plaza> plazas = Database.Query(Plaza.class).select();
 
-        List<Plaza> plazas = Database.Query(Plaza.class).select();
+            for (Plaza plaza : plazas) {
+                tableModel.addRow(plaza.getId(), plaza.getPassword(), plaza.getName());
+            }
 
-        for (Plaza plaza : plazas) {
-            dtm.addRow(new Object[]{plaza.getId(), plaza.getPassword()});
+            plazaAddButton.addActionListener((ActionEvent e) -> {
+                try {
+                    InputOutput.verifyNotNull(passwordField, nameField);
+
+                    String password = String.valueOf(passwordField.getPassword());
+                    String name = nameField.getText();
+
+                    int key = Database.Query(Plaza.class).insert(new Plaza.Builder()
+                        .withPassword(password)
+                        .withName(name)
+                        .build()
+                    );
+
+                    tableModel.addRow(key, password, name);
+                    passwordField.setText(null);
+                    nameField.setText(null);
+
+                } catch(Throwable error) {
+                    JOptionPane.showMessageDialog(this, error.getMessage());
+                }
+            });
+        } catch(Throwable error) {
+            JOptionPane.showMessageDialog(this, error.getMessage());
         }
     }
-
 }

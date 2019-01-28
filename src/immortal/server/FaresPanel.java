@@ -2,21 +2,22 @@ package immortal.server;
 
 import immortal.database.Database;
 import immortal.models.Fare;
+import immortal.util.InputOutput;
+import immortal.util.TableModel;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
 @SuppressWarnings("serial")
-public class FaresPanel extends JPanel {
-	private final JTextField amountField = new JTextField();
-	private final JTextField vehicleField = new JTextField();
-	private final JButton fareAddButton = new JButton("Add Fare");
-	private final JTable faresTable = new JTable();
-
+class FaresPanel extends JPanel {
 	FaresPanel() {
+        final JTextField amountField = new JTextField();
+        final JTextField vehicleField = new JTextField();
+        final JButton fareAddButton = new JButton("Add Fare");
+        final JTable faresTable = new JTable();
+
 		setLayout(new GridBagLayout());
 		GridBagConstraints gc = new GridBagConstraints();
 
@@ -53,34 +54,36 @@ public class FaresPanel extends JPanel {
 		gc.gridy = 3;
 		add(new JScrollPane(faresTable), gc);
 
-		DefaultTableModel dtm = new DefaultTableModel(0,0);
-		dtm.setColumnIdentifiers(new String[] {
-				"#", "Amount", "Vehicle Type"
-		});
-		faresTable.setModel(dtm);
+		final TableModel tableModel = new TableModel(faresTable).setColumns("#", "Amount", "Vehicle Type");
 
-		List<Fare> fares = Database.Query(Fare.class).select();
+		try {
+		    List<Fare> fares = Database.Query(Fare.class).select();
 
-        for (Fare fare : fares) {
-            dtm.addRow(new Object[]{fare.getId(), fare.getAmount(), fare.getVehicleType()});
+            for (Fare fare : fares) {
+                tableModel.addRow(fare.getId(), fare.getAmount(), fare.getVehicleType());
+            }
+
+            fareAddButton.addActionListener((ActionEvent e) -> {
+                try {
+                    InputOutput.verifyNotNull(amountField, vehicleField);
+
+                    int amount = Integer.parseInt(amountField.getText());
+                    int vehicleType = Integer.parseInt(vehicleField.getText());
+
+                    int key = Database.Query(Fare.class).insert(new Fare.Builder()
+                        .withAmount(amount)
+                        .withVehicleType(vehicleType)
+                        .build()
+                    );
+
+                    tableModel.addRow(key, amount, vehicleType);
+                    TableModel.setEmpty(amountField, vehicleField);
+                } catch(Throwable error) {
+                    JOptionPane.showMessageDialog(this, error.getMessage());
+                }
+            });
+        } catch(Throwable error) {
+            JOptionPane.showMessageDialog(this, error.getMessage());
         }
-
-        // Events
-		fareAddButton.addActionListener((ActionEvent e) -> {
-			if(amountField.getText().length() < 1 || vehicleField.getText().length() < 1) {
-				JOptionPane.showMessageDialog(FaresPanel.this, "Invalid Entry!");
-				return;
-			}
-
-			int key = Database.Query(Fare.class).insert(new Fare.Builder()
-				.withAmount(Integer.parseInt(amountField.getText()))
-				.withVehicleType(Integer.parseInt(vehicleField.getText()))
-				.build()
-			);
-
-			dtm.addRow(new Object[]{key, amountField.getText(), vehicleField.getText()});
-			amountField.setText(null);
-			vehicleField.setText(null);
-		});
 	}
 }
