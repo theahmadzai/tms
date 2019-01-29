@@ -1,22 +1,129 @@
 package immortal.client;
 
-import javax.swing.*;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import immortal.constants.Gender;
+import immortal.database.Database;
+import immortal.models.Fare;
+import immortal.models.Person;
+import immortal.models.Vehicle;
+import immortal.util.ComboItem;
+import immortal.util.InputOutput;
 
 public class Client {
-    final static private class ClientGui extends JFrame {
-        ClientGui() {
-            setTitle("Client");
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-
-
-            pack();
-            setVisible(true);
-        }
-    }
 
 	public Client() {
+	    final JFrame frame = new JFrame("Client");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new GridLayout(7, 2));
 
+        JTextField cnicField = new JTextField(15);
+        JTextField nameField = new JTextField(15);
+        JTextField ageField = new JTextField(15);
+
+        JRadioButton maleRadio = new JRadioButton();
+        maleRadio.setText("Male");
+        JRadioButton femaleRadio = new JRadioButton();
+        femaleRadio.setText("Female");
+
+        ButtonGroup genderField = new ButtonGroup();
+        genderField.add(maleRadio);
+        genderField.add(femaleRadio);
+
+        JPanel genderPanel = new JPanel();
+        genderPanel.add(maleRadio);
+        genderPanel.add(femaleRadio);
+
+        JComboBox<ComboItem> vehicleModelField = new JComboBox<>();
+
+        try {
+            List<Fare> fares = Database.Query(Fare.class).select();
+
+            for(Fare fare : fares) {
+                vehicleModelField.addItem(new ComboItem(fare.getId(), String.valueOf(fare.getVehicleType())));
+            }
+
+        } catch(Throwable error) {
+            JOptionPane.showMessageDialog(null, error.getMessage());
+        }
+
+
+        JTextField vehicleNumberPlateField = new JTextField(15);
+        JButton addButton = new JButton("Add Record");
+
+        frame.add(new JLabel("CNIC: "));
+        frame.add(cnicField);
+
+        frame.add(new JLabel("Name: "));
+        frame.add(nameField);
+
+        frame.add(new JLabel("Age: "));
+        frame.add(ageField);
+
+        frame.add(new JLabel("Gender: "));
+        frame.add(genderPanel);
+
+        frame.add(new JLabel("Vehicle Model: "));
+        frame.add(vehicleModelField);
+
+        frame.add(new JLabel("Vehicle Number Plate: "));
+        frame.add(vehicleNumberPlateField);
+
+        frame.add(addButton);
+
+
+
+        addButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    InputOutput.verifyNotNull(cnicField, nameField, ageField, vehicleNumberPlateField);
+
+                    // PERSON CLASS INSERTION TO DATABASE
+                    String cnic = cnicField.getText();
+                    String name = nameField.getText();
+                    int age = Integer.parseInt(ageField.getText());
+                    Gender gender = Gender.MALE;
+                    if(femaleRadio.isSelected()) gender = Gender.FEMALE;
+
+                    Person p = new Person(cnic, name, age, gender);
+                    Database.Query(Person.class).insert(p);
+
+                    // VEHICLE CLASS INSERTION TO DATABASE
+                    String numberPlate = vehicleNumberPlateField.getText();
+                    ComboItem ci = (ComboItem) vehicleModelField.getSelectedItem();
+                    int fareId = ci.value;
+
+                    Vehicle v = new Vehicle(numberPlate, fareId);
+                    Database.Query(Vehicle.class).insert(v);
+
+                } catch(Throwable error) {
+                    JOptionPane.showMessageDialog(null, error.getMessage());
+                }
+
+            }
+
+        });
+
+        frame.pack();
+        frame.setVisible(true);
 	}
 }
+
+
+
+
