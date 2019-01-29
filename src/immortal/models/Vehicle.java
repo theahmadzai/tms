@@ -8,29 +8,26 @@ public class Vehicle extends Model {
 	@Column("number_plate")
 	private String numberPlate;
 
-	@Column("model")
-	private String model;
-
 	@Column("fare_id")
 	private int fareId;
 
 	public Vehicle() { }
+
+	public Vehicle(String numberPlate, int fareId) {
+	    this.numberPlate = numberPlate;
+	    this.fareId = fareId;
+	}
 
 	private Vehicle(Builder builder) {
 		if(builder.numberPlate == null) {
 			throw new IllegalArgumentException("Null value given!");
 		}
 		this.numberPlate = builder.numberPlate;
-		this.model = builder.model;
 		this.fareId = builder.fareId;
 	}
 
 	public String getNumberPlate() {
 		return numberPlate;
-	}
-
-	public String getModel() {
-		return model;
 	}
 
 	public int getFareId() {
@@ -39,18 +36,12 @@ public class Vehicle extends Model {
 
 	public static final class Builder {
 		private String numberPlate;
-		private String model;
 		private int fareId;
 
 		public Builder() {}
 
 		public Builder withNumberPlate(String numberPlate) {
 			this.numberPlate = numberPlate;
-			return this;
-		}
-
-		public Builder withModel(String model) {
-			this.model = model;
 			return this;
 		}
 
