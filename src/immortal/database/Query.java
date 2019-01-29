@@ -74,6 +74,8 @@ class Query implements Connector {
             while (resultSet.next()) {
                 Object o = c.getConstructor().newInstance();
                 Iterator<Map.Entry<String, Field>> fieldsIterator = fields.entrySet().iterator();
+
+                // For Primary key Excepting the id variable to be in the super class
                 Field primaryKey = c.getSuperclass().getDeclaredField("id");
                 primaryKey.setAccessible(true);
                 primaryKey.set(o, resultSet.getObject("id"));

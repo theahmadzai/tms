@@ -5,9 +5,8 @@ import java.awt.*;
 
 @SuppressWarnings("serial")
 public class Server {
-
-	final static private class UserInterface extends JFrame {
-		UserInterface() {
+	final static private class ServerGui extends JFrame {
+		ServerGui() {
 			setTitle("Server");
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -28,7 +27,6 @@ public class Server {
 	}
 
 	public Server() {
-		EventQueue.invokeLater(UserInterface::new);
+		EventQueue.invokeLater(ServerGui::new);
 	}
-
 }

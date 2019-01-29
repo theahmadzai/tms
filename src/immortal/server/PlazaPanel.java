@@ -77,8 +77,7 @@ class PlazaPanel extends JPanel {
                     );
 
                     tableModel.addRow(key, password, name);
-                    passwordField.setText(null);
-                    nameField.setText(null);
+                    TableModel.setEmpty(passwordField, nameField);
 
                 } catch(Throwable error) {
                     JOptionPane.showMessageDialog(this, error.getMessage());
