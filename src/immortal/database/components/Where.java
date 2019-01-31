@@ -10,6 +10,9 @@ public final class Where implements SqlInterface {
     private final Object[] values;
 
     public Where(final String key, final Object operator, final Object ...values) {
+        if(!operator.equals(Operator.IN) && values.length > 1) {
+            throw new IllegalArgumentException("Wrong Params");
+        }
         this.key = key;
         this.operator = operator;
         this.values = values;
