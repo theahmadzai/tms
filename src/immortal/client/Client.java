@@ -1,20 +1,5 @@
 package immortal.client;
 
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-
 import immortal.constants.Gender;
 import immortal.database.Database;
 import immortal.models.Fare;
@@ -22,6 +7,12 @@ import immortal.models.Person;
 import immortal.models.Vehicle;
 import immortal.util.ComboItem;
 import immortal.util.InputOutput;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
 public class Client {
 
@@ -113,16 +104,22 @@ public class Client {
                     Gender gender = Gender.MALE;
                     if(femaleRadio.isSelected()) gender = Gender.FEMALE;
 
-                    Person p = new Person(cnic, name, age, gender);
-                    Database.Query(Person.class).insert(p);
+                    Database.Query(Person.class).insert(new Person.Builder()
+                        .withCnic(cnic)
+                        .withAge(age)
+                        .withName(name)
+                        .withGender(gender)
+                        .build()
+                    );
 
                     // VEHICLE CLASS INSERTION TO DATABASE
                     String numberPlate = vehicleNumberPlateField.getText();
-                    ComboItem ci = (ComboItem) vehicleModelField.getSelectedItem();
-                    int fareId = ci.value;
+                    int fareId = ((ComboItem) vehicleModelField.getSelectedItem()).value;
 
-                    Vehicle v = new Vehicle(numberPlate, fareId);
-                    Database.Query(Vehicle.class).insert(v);
+                    Database.Query(Vehicle.class).insert(new Vehicle.Builder()
+                        .withFareId(fareId)
+                        .withNumberPlate(numberPlate)
+                    );
 
                 } catch(Throwable error) {
                     JOptionPane.showMessageDialog(null, error.getMessage());
