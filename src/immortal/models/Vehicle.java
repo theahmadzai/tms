@@ -13,11 +13,6 @@ public class Vehicle extends Model {
 
 	public Vehicle() { }
 
-	public Vehicle(String numberPlate, int fareId) {
-	    this.numberPlate = numberPlate;
-	    this.fareId = fareId;
-	}
-
 	private Vehicle(Builder builder) {
 		if(builder.numberPlate == null) {
 			throw new IllegalArgumentException("Null value given!");

@@ -20,13 +20,6 @@ public class Person extends Model {
 
 	public Person() { }
 
-	public Person(String cnic, String name, int age, Gender gender) {
-	    this.cnic = cnic;
-	    this.name = name;
-	    this.age = age;
-	    this.gender = gender;
-	}
-
 	private Person(Builder builder) {
 		if(builder.cnic == null) {
 			throw new IllegalArgumentException("Null value given!");
