@@ -28,7 +28,7 @@ public class Client {
 	public Client() {
 	    final JFrame frame = new JFrame("Client");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(7, 2));
+        frame.setLayout(new GridLayout(7, 2, 10, 10));
 
         JTextField cnicField = new JTextField(15);
         JTextField nameField = new JTextField(15);
@@ -64,24 +64,37 @@ public class Client {
         JTextField vehicleNumberPlateField = new JTextField(15);
         JButton addButton = new JButton("Add Record");
 
-        frame.add(new JLabel("CNIC: "));
+        JLabel lbl = new JLabel("CNIC: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(cnicField);
 
-        frame.add(new JLabel("Name: "));
+        lbl = new JLabel("Name: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(nameField);
 
-        frame.add(new JLabel("Age: "));
+        lbl = new JLabel("Age: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(ageField);
 
-        frame.add(new JLabel("Gender: "));
+        lbl = new JLabel("Gender: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(genderPanel);
 
-        frame.add(new JLabel("Vehicle Model: "));
+        lbl = new JLabel("Vehicle Model: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(vehicleModelField);
 
-        frame.add(new JLabel("Vehicle Number Plate: "));
+        lbl = new JLabel("Vehicle Number Plate: ");
+        lbl.setHorizontalAlignment(JLabel.RIGHT);
+        frame.add(lbl);
         frame.add(vehicleNumberPlateField);
 
+        frame.add(new JLabel());
         frame.add(addButton);
 
 
