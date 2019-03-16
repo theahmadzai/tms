@@ -11,89 +11,110 @@ import immortal.util.InputOutput;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.List;
+import java.util.Scanner;
 
 public class Client {
+    private Socket socket = null;
+    private OutputStreamWriter stream = null;
 
 	public Client() {
-	    final JFrame frame = new JFrame("Client");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(7, 2, 10, 10));
-
-        JTextField cnicField = new JTextField(15);
-        JTextField nameField = new JTextField(15);
-        JTextField ageField = new JTextField(15);
-
-        JRadioButton maleRadio = new JRadioButton();
-        maleRadio.setText("Male");
-        JRadioButton femaleRadio = new JRadioButton();
-        femaleRadio.setText("Female");
-
-        ButtonGroup genderField = new ButtonGroup();
-        genderField.add(maleRadio);
-        genderField.add(femaleRadio);
-
-        JPanel genderPanel = new JPanel();
-        genderPanel.add(maleRadio);
-        genderPanel.add(femaleRadio);
-
-        JComboBox<ComboItem> vehicleModelField = new JComboBox<>();
+        EventQueue.invokeLater(ClientGui::new);
 
         try {
-            List<Fare> fares = Database.Query(Fare.class).select();
+            socket = new Socket("localhost", 5959);
+            stream = new OutputStreamWriter(socket.getOutputStream());
+            BufferedWriter bf = new BufferedWriter(stream);
 
-            for(Fare fare : fares) {
-                vehicleModelField.addItem(new ComboItem(fare.getId(), String.valueOf(fare.getVehicleType())));
+            Scanner sc = new Scanner(System.in);
+            while(true){
+                String line = sc.nextLine();
+                stream.write(line + "\n");
+                stream.flush();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+	}
+
+    final static private class ClientGui extends JFrame {
+        ClientGui() {
+            setTitle("Client");
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setLayout(new GridLayout(7, 2, 10, 10));
+
+            JTextField cnicField = new JTextField(15);
+            JTextField nameField = new JTextField(15);
+            JTextField ageField = new JTextField(15);
+
+            JRadioButton maleRadio = new JRadioButton();
+            maleRadio.setText("Male");
+            JRadioButton femaleRadio = new JRadioButton();
+            femaleRadio.setText("Female");
+
+            ButtonGroup genderField = new ButtonGroup();
+            genderField.add(maleRadio);
+            genderField.add(femaleRadio);
+
+            JPanel genderPanel = new JPanel();
+            genderPanel.add(maleRadio);
+            genderPanel.add(femaleRadio);
+
+            JComboBox<ComboItem> vehicleModelField = new JComboBox<>();
+
+            try {
+                List<Fare> fares = Database.Query(Fare.class).select();
+
+                for(Fare fare : fares) {
+                    vehicleModelField.addItem(new ComboItem(fare.getId(), String.valueOf(fare.getVehicleType())));
+                }
+
+            } catch(Throwable error) {
+                JOptionPane.showMessageDialog(null, error.getMessage());
             }
 
-        } catch(Throwable error) {
-            JOptionPane.showMessageDialog(null, error.getMessage());
-        }
 
+            JTextField vehicleNumberPlateField = new JTextField(15);
+            JButton addButton = new JButton("Add Record");
 
-        JTextField vehicleNumberPlateField = new JTextField(15);
-        JButton addButton = new JButton("Add Record");
+            JLabel lbl = new JLabel("CNIC: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(cnicField);
 
-        JLabel lbl = new JLabel("CNIC: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(cnicField);
+            lbl = new JLabel("Name: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(nameField);
 
-        lbl = new JLabel("Name: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(nameField);
+            lbl = new JLabel("Age: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(ageField);
 
-        lbl = new JLabel("Age: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(ageField);
+            lbl = new JLabel("Gender: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(genderPanel);
 
-        lbl = new JLabel("Gender: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(genderPanel);
+            lbl = new JLabel("Vehicle Model: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(vehicleModelField);
 
-        lbl = new JLabel("Vehicle Model: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(vehicleModelField);
+            lbl = new JLabel("Vehicle Number Plate: ");
+            lbl.setHorizontalAlignment(JLabel.RIGHT);
+            add(lbl);
+            add(vehicleNumberPlateField);
 
-        lbl = new JLabel("Vehicle Number Plate: ");
-        lbl.setHorizontalAlignment(JLabel.RIGHT);
-        frame.add(lbl);
-        frame.add(vehicleNumberPlateField);
+            add(new JLabel());
+            add(addButton);
 
-        frame.add(new JLabel());
-        frame.add(addButton);
-
-
-
-        addButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            addButton.addActionListener((ActionEvent e) -> {
                 try {
                     InputOutput.verifyNotNull(cnicField, nameField, ageField, vehicleNumberPlateField);
 
@@ -125,13 +146,12 @@ public class Client {
                     JOptionPane.showMessageDialog(null, error.getMessage());
                 }
 
-            }
+            });
 
-        });
-
-        frame.pack();
-        frame.setVisible(true);
-	}
+            pack();
+            setVisible(true);
+        }
+    }
 }
 
 
